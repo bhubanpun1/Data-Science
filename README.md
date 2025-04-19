@@ -18,7 +18,7 @@ This project analyzes economic and financial factors influencing the Australian 
 
 - [economy.au.csv](https://github.com/bhubanpun1/Stock-Market-Factors-Analysis/blob/main/economy.au.csv): Cleaned dataset.
 - [stock_market_analysis.Rmd](https://github.com/bhubanpun1/Stock-Market-Factors-Analysis/blob/main/stock_market_analysis.Rmd): R Markdown analysis script.
-- `stock_market_analysis_report.pdf`: Final project report.
+- [stock_market_analysis_report.pdf](https://github.com/bhubanpun1/Stock-Market-Factors-Analysis/blob/main/stock_market_analysis_report.pdf): Final project report.
 
 ## How to Run
 
