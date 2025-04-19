@@ -1,0 +1,244 @@
+---
+title: "Project"
+author: "Bhuban Pun"
+date: "2023-10-07"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+A1: Description
+```{r}
+economyau <- read.csv("economy.au.csv")
+str(economyau)
+```
+
+```{r}
+head(economyau)
+```
+
+A2: Data set
+```{r}
+summary(economyau)
+```
+
+```{r}
+cov(economyau)
+```
+
+```{r}
+cor(economyau)
+```
+
+```{r}
+pairs(economyau, panel = panel.smooth)
+```
+
+B1.1 Sampling and Data allocation
+```{r}
+set.seed(77)
+tr_economy <- sample(1:nrow(economyau),round(nrow(economyau)*0.70, 0))
+train_economyau <- economyau[tr_economy, ] 
+valid_economyau <- economyau[-tr_economy, ]
+actual_economyau <- valid_economyau$Index
+```
+
+B1.2 Linear Models using glm function and k-fold for cross validation method
+```{r}
+library(boot)
+m1 <- glm(Index~In, data = train_economyau)
+m2 <- glm(Index~FX.rate, data = train_economyau)
+m3 <- glm(Index~Volume, data = train_economyau)
+m4 <- glm(Index~Inflation, data = train_economyau)
+m5 <- glm(Index~GDP.growth, data = train_economyau)
+m6 <- glm(Index~Interest.rate, data = train_economyau)
+m7 <- glm(Index~Interest.rate+Inflation, data = train_economyau)
+m8 <- glm(Index~Interest.rate+GDP.growth, data = train_economyau)
+m9 <- glm(Index~Interest.rate+Volume, data = train_economyau)
+m10 <- glm(Index~Interest.rate+FX.rate, data = train_economyau)
+m11 <- glm(Index~Interest.rate+In, data = train_economyau)
+m12 <- glm(Index~GDP.growth+Inflation, data = train_economyau)
+m13 <- glm(Index~GDP.growth+Volume, data = train_economyau)
+m14 <- glm(Index~GDP.growth+FX.rate, data = train_economyau)
+m15 <- glm(Index~GDP.growth+In, data = train_economyau)
+m16 <- glm(Index~Inflation+Volume, data = train_economyau)
+m17 <- glm(Index~Inflation+FX.rate, data = train_economyau)
+m18 <- glm(Index~Inflation+In, data = train_economyau)
+m19 <- glm(Index~Volume+FX.rate, data = train_economyau)
+m20 <- glm(Index~Volume+In, data = train_economyau)
+m21 <- glm(Index~FX.rate+In, data = train_economyau)
+m22 <- glm(Index~., data = train_economyau)
+```
+
+B1.3
+```{r}
+models <- 1:22
+kfolderrors <- numeric(22)
+kfolderrors[1] <- cv.glm(train_economyau, m1, K=10)$delta[1]
+kfolderrors[2] <- cv.glm(train_economyau, m2, K=10)$delta[1]
+kfolderrors[3] <- cv.glm(train_economyau, m3, K=10)$delta[1]
+kfolderrors[4] <- cv.glm(train_economyau, m4, K=10)$delta[1]
+kfolderrors[5] <- cv.glm(train_economyau, m5, K=10)$delta[1]
+kfolderrors[6] <- cv.glm(train_economyau, m6, K=10)$delta[1]
+kfolderrors[7] <- cv.glm(train_economyau, m7, K=10)$delta[1]
+kfolderrors[8] <- cv.glm(train_economyau, m8, K=10)$delta[1]
+kfolderrors[9] <- cv.glm(train_economyau, m9, K=10)$delta[1]
+kfolderrors[10] <- cv.glm(train_economyau, m10, K=10)$delta[1]
+kfolderrors[11] <- cv.glm(train_economyau, m11, K=10)$delta[1]
+kfolderrors[12] <- cv.glm(train_economyau, m12, K=10)$delta[1]
+kfolderrors[13] <- cv.glm(train_economyau, m13, K=10)$delta[1]
+kfolderrors[14] <- cv.glm(train_economyau, m14, K=10)$delta[1]
+kfolderrors[15] <- cv.glm(train_economyau, m15, K=10)$delta[1]
+kfolderrors[16] <- cv.glm(train_economyau, m16, K=10)$delta[1]
+kfolderrors[17] <- cv.glm(train_economyau, m17, K=10)$delta[1]
+kfolderrors[18] <- cv.glm(train_economyau, m18, K=10)$delta[1]
+kfolderrors[19] <- cv.glm(train_economyau, m19, K=10)$delta[1]
+kfolderrors[20] <- cv.glm(train_economyau, m20, K=10)$delta[1]
+kfolderrors[21] <- cv.glm(train_economyau, m21, K=10)$delta[1]
+kfolderrors[22] <- cv.glm(train_economyau, m22, K=10)$delta[1]
+kfolderrors
+```
+B1.4
+```{r}
+plot(models, kfolderrors, type="b", xlab = "models", ylab = "10 Fold CV MSE")
+```
+
+```{r}
+summary(m7)
+```
+
+
+B1.5
+```{r}
+predict_m7 <- predict(m7, newdata = valid_economyau, type = "response")
+```
+
+B1.6
+```{r}
+MSE_m1 <- mean((actual_economyau - predict_m7)^2)
+MSE_m1
+```
+
+```{r}
+sqMSE1 <- sqrt(MSE_m1)
+sqMSE1
+```
+
+B1.7 model checking
+```{r}
+par(mfrow = c(2, 2))
+plot(m7)
+```
+
+```{r}
+summary(m1)
+```
+
+C1.1 Decision Tree
+```{r}
+library(tree)
+set.seed(77)
+tr_economy <- sample(1:nrow(economyau), round(nrow(economyau)*0.70, 0))
+train_economyau <- economyau[tr_economy, ] 
+valid_economyau <- economyau[-tr_economy, ]
+actual_economyau <- valid_economyau$Index
+tree_economy1 <- tree(Index~., data = train_economyau)
+summary(tree_economy1)
+```
+```{r}
+tree_economy1
+```
+
+C1.2
+```{r}
+par(mfrow=c(1,1))
+plot(tree_economy1)
+text(tree_economy1, pretty = 0)
+```
+
+C1.3
+```{r}
+predict_tree_economy1 <- predict(tree_economy1, newdata = valid_economyau)
+MSE_tree_economy1 <- mean((actual_economyau - predict_tree_economy1)^2)
+MSE_tree_economy1
+```
+
+```{r}
+sqMSE2 <- sqrt(MSE_tree_economy1)
+sqMSE2
+```
+
+C1.4 purning using cross validation
+```{r}
+cv_tree_economy1 <- cv.tree(tree_economy1, FUN = prune.tree)
+cv_tree_economy1
+```
+```{r}
+plot(cv_tree_economy1$size, cv_tree_economy1$dev, type="b")
+```
+
+C1.5
+```{r}
+pruned_tree_economy1 <- prune.tree(tree_economy1, best = 10)
+pruned_tree_economy1
+```
+
+```{r}
+par(mfrow=c(1,1))
+plot(pruned_tree_economy1)
+text(pruned_tree_economy1, pretty = 0)
+```
+
+C1.6 Test model accuracy
+```{r}
+predict_tree_economy2 <- predict(pruned_tree_economy1, newdata = valid_economyau)
+MSE_tree_economy2 <- mean((actual_economyau - predict_tree_economy2)^2)
+MSE_tree_economy2
+```
+
+```{r}
+sqrt(MSE_tree_economy2)
+```
+
+D1.1 Unsupervised learning- Principal Component Analysis
+```{r}
+Mean <- sapply(economyau, mean)
+Variance <- sapply(economyau, var)
+mv <- data.frame(Mean, Variance)
+mv
+```
+
+D1.2
+```{r}
+pca1 <- prcomp(economyau, scale. = TRUE)
+pca1
+```
+
+D1.3
+```{r}
+summary(pca1)
+```
+
+```{r}
+pca1_var <- pca1$sdev^2
+pca1_var_pro <- pca1_var / sum(pca1_var)
+pca1_var_cum <- cumsum(pca1_var_pro)
+plot(1:7, cumsum(pca1_var_pro), type = "b", xlab = "PCs", ylab = "Cumulative Proportion")
+```
+
+D1.4 
+```{r}
+biplot(pca1, scale = 0)
+```
+
+E1.1 Model Comparision
+```{r}
+MSE <- c(MSE_m1, MSE_tree_economy1)
+Sq.Root.MSE <- c(sqMSE1, sqMSE2)
+Compare <- data.frame(MSE, Sq.Root.MSE)
+rownames(Compare) <- c("Linear Regression", "Decision Tree")
+Compare
+```
+
